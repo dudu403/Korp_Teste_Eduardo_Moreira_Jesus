@@ -100,5 +100,67 @@ namespace EstoqueService.Application
                 Saldo = produto.Saldo
             };
         }
+
+        public async Task ExcluirAsync(Guid id)
+        {
+            var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (produto == null)
+                throw new ArgumentException("Produto não encontrado.");
+
+            _context.Produtos.Remove(produto);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<ProdutoResponseDto?> SelecionarPorCodigoAsync(string codigo)
+        {
+            return await _context.Produtos
+                .Where(p => p.Codigo == codigo)
+                .Select(p => new ProdutoResponseDto
+                {
+                    Id = p.Id,
+                    Codigo = p.Codigo,
+                    Descricao = p.Descricao,
+                    Saldo = p.Saldo
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<ProdutoResponseDto> BaixarEstoqueAsync(string codigo, int quantidade)
+        {
+            if (string.IsNullOrWhiteSpace(codigo))
+                throw new ArgumentException("O código do produto é obrigatório.");
+
+            if (quantidade <= 0)
+                throw new ArgumentException("A quantidade para baixa deve ser maior que zero.");
+
+            var linhasAfetadas = await _context.Database.ExecuteSqlInterpolatedAsync($@"
+                                                            UPDATE Produtos
+                                                            SET Saldo = Saldo - {quantidade}
+                                                            WHERE Codigo = {codigo} AND Saldo >= {quantidade}");
+
+            if (linhasAfetadas == 0)
+            {
+                var produtoExiste = await _context.Produtos.AnyAsync(p => p.Codigo == codigo);
+
+                if (!produtoExiste)
+                    throw new ArgumentException("Produto não encontrado.");
+
+                throw new ArgumentException("Saldo insuficiente para realizar a baixa.");
+            }
+
+            var produtoAtualizado = await _context.Produtos
+                .Where(p => p.Codigo == codigo)
+                .Select(p => new ProdutoResponseDto
+                {
+                    Id = p.Id,
+                    Codigo = p.Codigo,
+                    Descricao = p.Descricao,
+                    Saldo = p.Saldo
+                })
+                .FirstAsync();
+
+            return produtoAtualizado;
+        }
     }
 }
