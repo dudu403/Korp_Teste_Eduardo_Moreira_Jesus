@@ -1,7 +1,7 @@
 ﻿using EstoqueService.Data;
 using EstoqueService.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace EstoqueService.Domain.Validators
 {
@@ -14,21 +14,22 @@ namespace EstoqueService.Domain.Validators
             _context = context;
 
             RuleFor(x => x.Codigo)
-    .NotEmpty().WithMessage("O código não pode estar vazio")
-    .MustAsync(async (produto, codigo, ct) =>
-    {
-        var existe = await _context.Produtos
-            .AnyAsync(p => p.Codigo == codigo && p.Id != produto.Id);
-        return !existe;
-    }).WithMessage("Já existe um produto cadastrado com esse código");
+                .NotEmpty().WithMessage("O código não pode estar vazio.")
+                .MaximumLength(20).WithMessage("O código deve ter no máximo 20 caracteres.")
+                .MustAsync(async (produto, codigo, ct) =>
+                {
+                    var existe = await _context.Produtos
+                        .AnyAsync(p => p.Codigo == codigo && p.Id != produto.Id, ct);
 
-            RuleFor(x => x.Saldo)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("O saldo não pode ser negativo");
+                    return !existe;
+                }).WithMessage("Já existe um produto cadastrado com esse código.");
 
             RuleFor(x => x.Descricao)
-                .NotEmpty()
-                .WithMessage("A descrição não pode estar vazia");
+                .NotEmpty().WithMessage("A descrição não pode estar vazia.")
+                .MaximumLength(100).WithMessage("A descrição deve ter no máximo 100 caracteres.");
+
+            RuleFor(x => x.Saldo)
+                .GreaterThanOrEqualTo(0).WithMessage("O saldo não pode ser negativo.");
         }
     }
 }
