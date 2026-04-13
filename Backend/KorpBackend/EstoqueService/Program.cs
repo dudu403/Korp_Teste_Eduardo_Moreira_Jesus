@@ -9,6 +9,16 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<EstoqueDbContext>(options =>
@@ -19,11 +29,6 @@ builder.Services.AddScoped<IValidator<Produto>, ProdutoValidator>();
 
 // Registrar service de produtos
 builder.Services.AddScoped<ProdutoService>();
-
-builder.Services.AddFluentValidationAutoValidation(config =>
-{
-    config.DisableDataAnnotationsValidation = true;
-});
 
 // Configurar FluentValidation
 builder.Services.AddFluentValidationAutoValidation(config =>
@@ -46,6 +51,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("Frontend");
+
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
