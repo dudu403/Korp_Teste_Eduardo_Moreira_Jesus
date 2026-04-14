@@ -6,6 +6,7 @@ using EstoqueService.Domain.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using EstoqueService.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,13 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
+builder.Services.AddHttpClient<FaturamentoClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7240/");
+});
+
+builder.Services.AddScoped<ProdutoService>();
 
 builder.Services.AddControllers();
 
@@ -35,6 +43,8 @@ builder.Services.AddFluentValidationAutoValidation(config =>
 {
     config.DisableDataAnnotationsValidation = true;
 });
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

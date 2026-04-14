@@ -46,5 +46,16 @@ namespace FaturamentoService.Controllers
             var notaFiscal = await _notaFiscalService.FecharAsync(id);
             return Ok(notaFiscal);
         }
+
+        [HttpGet("produto/{codigoProduto}/possui-nota-aberta")]
+        public async Task<ActionResult<object>> PossuiNotaAbertaPorProduto(string codigoProduto)
+        {
+            var possuiNotaAberta = await _notaFiscalService.PossuiNotaAbertaPorProdutoAsync(codigoProduto);
+
+            return Ok(new
+            {
+                possuiNotaAberta
+            });
+        }
     }
 }
