@@ -1,0 +1,105 @@
+@if (carregando()) {
+  <div class="text-slate-500">Carregando nota fiscal...</div>
+} @else if (nota()) {
+  <div class="space-y-6">
+    <a
+      routerLink="/notas-fiscais"
+      class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition"
+    >
+      ← Voltar para Notas Fiscais
+    </a>
+
+    <div class="flex items-start justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
+          📄
+        </div>
+
+        <div>
+          <h1 class="text-4xl font-bold text-slate-900">NF-e #{{ nota()!.numero }}</h1>
+          <p class="text-slate-500 mt-2">
+            {{ formatarDataCompleta(nota()!.dataEmissao) }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="inline-flex items-center justify-center min-w-24 px-4 h-10 rounded-xl text-sm font-semibold"
+          [class.bg-emerald-100]="nota()!.status === 'Aberta'"
+          [class.text-emerald-700]="nota()!.status === 'Aberta'"
+          [class.bg-slate-100]="nota()!.status === 'Fechada'"
+          [class.text-slate-700]="nota()!.status === 'Fechada'"
+        >
+          {{ nota()!.status }}
+        </span>
+
+        <button
+          (click)="fecharNota()"
+          [disabled]="!podeFechar()"
+          class="h-11 px-6 rounded-xl font-semibold transition flex items-center gap-2"
+          [class.bg-blue-400]="podeFechar()"
+          [class.text-white]="podeFechar()"
+          [class.hover:bg-blue-500]="podeFechar()"
+          [class.bg-slate-200]="!podeFechar()"
+          [class.text-slate-500]="!podeFechar()"
+          [class.cursor-not-allowed]="!podeFechar()"
+        >
+          @if (processandoFechamento()) {
+            <span class="inline-block w-4 h-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin"></span>
+            <span>Processando...</span>
+          } @else {
+            <span>🖨</span>
+            <span>Imprimir NF-e</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (nota()!.status === 'Fechada') {
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-600 flex items-center gap-3">
+        <span class="text-lg">✅</span>
+        <span>
+          Esta nota fiscal já foi impressa e fechada. Não é possível realizar novas impressões.
+        </span>
+      </div>
+    }
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-200">
+        <h2 class="text-2xl font-bold text-slate-900">Itens da Nota</h2>
+      </div>
+
+      <table class="w-full">
+        <thead>
+          <tr class="text-left text-sm text-slate-500 uppercase tracking-wide border-b border-slate-200">
+            <th class="px-6 py-4 font-semibold w-[80px]">#</th>
+            <th class="px-6 py-4 font-semibold w-[180px]">Código</th>
+            <th class="px-6 py-4 font-semibold">Produto</th>
+            <th class="px-6 py-4 font-semibold text-right w-[180px]">Quantidade</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (item of nota()!.itens; track item.id; let i = $index) {
+            <tr class="border-b border-slate-200 last:border-b-0">
+              <td class="px-6 py-5 text-slate-700">{{ i + 1 }}</td>
+              <td class="px-6 py-5 font-medium text-slate-900">{{ item.codigoProduto }}</td>
+              <td class="px-6 py-5 text-slate-900">{{ item.descricaoProduto }}</td>
+              <td class="px-6 py-5 text-right text-slate-900 font-medium">{{ item.quantidade }}</td>
+            </tr>
+          }
+
+          <tr>
+            <td colspan="3" class="px-6 py-5 text-right font-bold text-slate-900">
+              Total de Itens:
+            </td>
+            <td class="px-6 py-5 text-right font-bold text-slate-900">
+              {{ totalItens() }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

@@ -5,121 +5,148 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <button
+      (click)="irParaProdutos()"
+      class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm text-left transition hover:shadow-md hover:-translate-y-0.5"
+    >
       <div class="flex items-start justify-between">
         <div>
           <p class="text-sm uppercase tracking-wide text-slate-500">Produtos</p>
-          <h2 class="text-4xl font-bold text-slate-900 mt-2">6</h2>
+          <h2 class="text-4xl font-bold text-slate-900 mt-2">{{ totalProdutos() }}</h2>
           <p class="text-sm text-slate-500 mt-2">cadastrados</p>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
-          📦
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="m3.3 7 8.7 5 8.7-5"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 22V12"/>
+          </svg>
         </div>
       </div>
-    </div>
+    </button>
 
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <button
+      (click)="irParaNotasFiscais()"
+      class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm text-left transition hover:shadow-md hover:-translate-y-0.5"
+    >
       <div class="flex items-start justify-between">
         <div>
           <p class="text-sm uppercase tracking-wide text-slate-500">Notas Fiscais</p>
-          <h2 class="text-4xl font-bold text-slate-900 mt-2">8</h2>
+          <h2 class="text-4xl font-bold text-slate-900 mt-2">{{ totalNotas() }}</h2>
           <p class="text-sm text-slate-500 mt-2">total emitidas</p>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
-          📄
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 13H8"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 17H8"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 9H8"/>
+          </svg>
         </div>
       </div>
-    </div>
+    </button>
 
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <button
+      (click)="irParaNotasAbertas()"
+      class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm text-left transition hover:shadow-md hover:-translate-y-0.5"
+    >
       <div class="flex items-start justify-between">
         <div>
           <p class="text-sm uppercase tracking-wide text-slate-500">Abertas</p>
-          <h2 class="text-4xl font-bold text-slate-900 mt-2">0</h2>
+          <h2 class="text-4xl font-bold text-slate-900 mt-2">{{ totalNotasAbertas() }}</h2>
           <p class="text-sm text-slate-500 mt-2">aguardando impressão</p>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
-          ✅
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
+          </svg>
         </div>
       </div>
-    </div>
+    </button>
 
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <button
+      (click)="irParaEstoqueBaixo()"
+      class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm text-left transition hover:shadow-md hover:-translate-y-0.5"
+    >
       <div class="flex items-start justify-between">
         <div>
           <p class="text-sm uppercase tracking-wide text-slate-500">Estoque Baixo</p>
-          <h2 class="text-4xl font-bold text-slate-900 mt-2">1</h2>
+          <h2 class="text-4xl font-bold text-slate-900 mt-2">{{ totalEstoqueBaixo() }}</h2>
           <p class="text-sm text-slate-500 mt-2">produtos com saldo ≤ 5</p>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
-          ⚠️
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01"/>
+          </svg>
         </div>
       </div>
-    </div>
+    </button>
   </div>
 
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
     <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
       <h3 class="text-xl font-semibold text-slate-900">Notas Fiscais Recentes</h3>
-      <button class="text-blue-600 font-medium hover:underline">Ver todas →</button>
+      <button
+        (click)="irParaNotasFiscais()"
+        class="text-blue-600 font-medium hover:underline"
+      >
+        Ver todas →
+      </button>
     </div>
 
-    <div class="divide-y divide-slate-200">
-      <div class="px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">📄</div>
-          <div>
-            <p class="font-semibold text-slate-900">NF-e #000008</p>
-            <p class="text-sm text-slate-500">10/04/2026 12:58</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-slate-500">1 item</span>
-          <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">Fechada</span>
-        </div>
+    @if (carregandoDashboard()) {
+      <div class="px-6 py-8 text-center text-slate-500">
+        Carregando dashboard...
       </div>
+    } @else if (notasRecentes().length === 0) {
+      <div class="px-6 py-8 text-center text-slate-500">
+        Nenhuma nota fiscal encontrada.
+      </div>
+    } @else {
+      <div class="divide-y divide-slate-200">
+        @for (nota of notasRecentes(); track nota.id) {
+          <button
+            (click)="abrirDetalheNota(nota)"
+            class="w-full px-6 py-5 flex items-center justify-between text-left transition hover:bg-slate-50"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 13H8"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 17H8"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 9H8"/>
+                </svg>
+              </div>
 
-      <div class="px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">📄</div>
-          <div>
-            <p class="font-semibold text-slate-900">NF-e #000007</p>
-            <p class="text-sm text-slate-500">09/04/2026 17:47</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-slate-500">4 itens</span>
-          <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">Fechada</span>
-        </div>
-      </div>
+              <div>
+                <p class="font-semibold text-slate-900">NF-e #{{ nota.numero }}</p>
+                <p class="text-sm text-slate-500">{{ formatarDataHora(nota.dataEmissao) }}</p>
+              </div>
+            </div>
 
-      <div class="px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">📄</div>
-          <div>
-            <p class="font-semibold text-slate-900">NF-e #000006</p>
-            <p class="text-sm text-slate-500">09/04/2026 17:21</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-slate-500">1 item</span>
-          <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">Fechada</span>
-        </div>
-      </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-slate-500">
+                {{ quantidadeItens(nota) }} {{ quantidadeItens(nota) === 1 ? 'item' : 'itens' }}
+              </span>
 
-      <div class="px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">📄</div>
-          <div>
-            <p class="font-semibold text-slate-900">NF-e #000005</p>
-            <p class="text-sm text-slate-500">09/04/2026 17:19</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-slate-500">1 item</span>
-          <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">Fechada</span>
-        </div>
+              <span
+                class="px-3 py-1 rounded-full text-sm font-medium"
+                [class.bg-amber-100]="nota.status === 'Aberta'"
+                [class.text-amber-700]="nota.status === 'Aberta'"
+                [class.bg-slate-100]="nota.status === 'Fechada'"
+                [class.text-slate-700]="nota.status === 'Fechada'"
+              >
+                {{ nota.status }}
+              </span>
+            </div>
+          </button>
+        }
       </div>
-    </div>
+    }
   </div>
 </div>

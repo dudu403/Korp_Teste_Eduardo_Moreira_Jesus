@@ -1,4 +1,240 @@
-<div>
-  <h1 class="text-4xl font-bold text-slate-900">Notas Fiscais</h1>
-  <p class="text-gray-500 mt-2">Gerencie a emissão de notas fiscais eletrônicas</p>
+<div class="space-y-6">
+  <div class="flex items-start justify-between">
+    <div>
+      <h1 class="text-4xl font-bold text-slate-900">Notas Fiscais</h1>
+      <p class="text-gray-500 mt-2">Gerencie a emissão de notas fiscais eletrônicas</p>
+    </div>
+
+    <button
+      (click)="abrirModal()"
+      class="h-12 px-6 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition shadow-sm"
+    >
+      + Nova Nota Fiscal
+    </button>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+    <div class="max-w-md w-full">
+      <div class="relative">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">⌕</span>
+        <input
+          type="text"
+          [value]="busca()"
+          (input)="atualizarBusca($event)"
+          placeholder="Buscar por número..."
+          class="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-300 bg-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+        />
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        (click)="definirFiltro('TODAS')"
+        class="h-10 px-4 rounded-xl border text-sm font-medium transition"
+        [class.bg-blue-600]="filtroStatus() === 'TODAS'"
+        [class.text-white]="filtroStatus() === 'TODAS'"
+        [class.border-blue-600]="filtroStatus() === 'TODAS'"
+      >
+        Todas
+      </button>
+
+      <button
+        (click)="definirFiltro('ABERTA')"
+        class="h-10 px-4 rounded-xl border text-sm font-medium transition"
+        [class.bg-white]="filtroStatus() !== 'ABERTA'"
+        [class.text-slate-700]="filtroStatus() !== 'ABERTA'"
+        [class.border-slate-300]="filtroStatus() !== 'ABERTA'"
+        [class.bg-blue-600]="filtroStatus() === 'ABERTA'"
+        [class.text-white]="filtroStatus() === 'ABERTA'"
+        [class.border-blue-600]="filtroStatus() === 'ABERTA'"
+      >
+        Aberta
+      </button>
+
+      <button
+        (click)="definirFiltro('FECHADA')"
+        class="h-10 px-4 rounded-xl border text-sm font-medium transition"
+        [class.bg-white]="filtroStatus() !== 'FECHADA'"
+        [class.text-slate-700]="filtroStatus() !== 'FECHADA'"
+        [class.border-slate-300]="filtroStatus() !== 'FECHADA'"
+        [class.bg-blue-600]="filtroStatus() === 'FECHADA'"
+        [class.text-white]="filtroStatus() === 'FECHADA'"
+        [class.border-blue-600]="filtroStatus() === 'FECHADA'"
+      >
+        Fechada
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <table class="w-full table-fixed">
+      <thead class="bg-white">
+        <tr class="text-left text-sm text-slate-500 uppercase tracking-wide border-b border-slate-200">
+          <th class="px-6 py-4 font-semibold w-[180px]">Número</th>
+          <th class="px-6 py-4 font-semibold w-[220px]">Data</th>
+          <th class="px-6 py-4 font-semibold w-[120px] text-center">Itens</th>
+          <th class="px-6 py-4 font-semibold w-[160px] text-center">Status</th>
+          <th class="px-6 py-4 font-semibold w-[120px] text-center">Ação</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (carregando()) {
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+              Carregando notas fiscais...
+            </td>
+          </tr>
+        } @else if (notasFiltradas().length === 0) {
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+              Nenhuma nota fiscal encontrada.
+            </td>
+          </tr>
+        } @else {
+          @for (nota of notasFiltradas(); track nota.id) {
+            <tr class="border-b border-slate-200 last:border-b-0">
+              <td class="px-6 py-5 font-medium text-blue-700">
+                #{{ nota.numero }}
+              </td>
+
+              <td class="px-6 py-5 text-slate-700">
+                {{ formatarDataHora(nota.dataEmissao) }}
+              </td>
+
+              <td class="px-6 py-5 text-center text-slate-700">
+                {{ quantidadeItens(nota) }}
+              </td>
+
+              <td class="px-6 py-5 text-center">
+                <span
+                  class="inline-flex items-center justify-center min-w-20 px-3 h-8 rounded-full text-sm font-semibold"
+                  [class.bg-amber-100]="nota.status === 'Aberta'"
+                  [class.text-amber-700]="nota.status === 'Aberta'"
+                  [class.bg-slate-100]="nota.status === 'Fechada'"
+                  [class.text-slate-700]="nota.status === 'Fechada'"
+                >
+                  {{ nota.status }}
+                </span>
+              </td>
+
+              <td class="px-6 py-5 text-center">
+                <button
+                  (click)="abrirDetalhe(nota)"
+                  class="text-slate-500 hover:text-blue-600 transition"
+                  title="Visualizar"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
 </div>
+
+@if (modalAberto()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      class="absolute inset-0 bg-black/55"
+      (click)="fecharModal()"
+    ></div>
+
+    <div class="relative z-10 w-full max-w-[520px] rounded-2xl bg-white shadow-2xl p-6">
+      <div class="flex items-start justify-between mb-6">
+        <h2 class="text-3xl font-bold text-slate-900">Nova Nota Fiscal</h2>
+
+        <button
+          (click)="fecharModal()"
+          class="text-slate-500 hover:text-slate-700 text-2xl leading-none"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="space-y-5">
+        <div>
+          <label class="block text-lg font-medium text-slate-900 mb-2">Número da Nota</label>
+          <input
+            type="text"
+            [value]="novaNota.numero"
+            disabled
+            class="w-full h-14 px-4 rounded-xl border border-slate-300 bg-slate-50 text-slate-500"
+          />
+          <p class="mt-2 text-sm text-slate-400">Numeração sequencial automática</p>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <h3 class="text-2xl font-semibold text-slate-900">Produtos</h3>
+
+          <button
+            (click)="adicionarLinhaProduto()"
+            class="h-10 px-4 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition"
+          >
+            + Adicionar Produto
+          </button>
+        </div>
+
+        @for (linha of linhasProdutos(); track $index; let i = $index) {
+          <div class="grid grid-cols-[1fr_120px_32px] gap-3 items-center">
+            <select
+              [ngModel]="linha.codigoProduto"
+              (ngModelChange)="atualizarCodigoProduto(i, $event)"
+              class="h-12 px-4 rounded-xl border border-slate-300 outline-none focus:border-blue-500"
+            >
+              <option value="">Selecione...</option>
+              @for (produto of produtos(); track produto.id) {
+                <option [value]="produto.codigo">
+                  {{ produto.codigo }} - {{ produto.descricao }} (saldo: {{ produto.saldo }})
+                </option>
+              }
+            </select>
+
+            <input
+              type="number"
+              min="1"
+              [ngModel]="linha.quantidade"
+              (ngModelChange)="atualizarQuantidade(i, +$event)"
+              class="h-12 px-4 rounded-xl border border-slate-300 outline-none focus:border-blue-500 text-center"
+            />
+
+            <button
+              (click)="removerLinhaProduto(i)"
+              class="text-red-500 hover:text-red-600 transition text-center"
+              title="Remover linha"
+            >
+              🗑
+            </button>
+          </div>
+        }
+
+        @if (linhasProdutos().length === 0) {
+          <div class="rounded-2xl border border-dashed border-slate-300 px-6 py-8 text-center text-slate-400">
+            Clique em "Adicionar Produto" para incluir itens na nota
+          </div>
+        }
+      </div>
+
+      <div class="mt-8 flex items-center justify-end gap-3">
+        <button
+          (click)="fecharModal()"
+          class="h-11 px-6 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition"
+        >
+          Cancelar
+        </button>
+
+        <button
+          (click)="emitirNota()"
+          class="h-11 px-6 rounded-xl bg-blue-400 text-white font-semibold hover:bg-blue-500 transition"
+        >
+          Emitir Nota Fiscal
+        </button>
+      </div>
+    </div>
+  </div>
+}
