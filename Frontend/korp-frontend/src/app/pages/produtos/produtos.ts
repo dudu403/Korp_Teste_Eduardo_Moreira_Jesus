@@ -198,9 +198,13 @@ export class ProdutosComponent implements OnInit {
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao excluir produto', erro);
 
-        const mensagem =
+        const mensagemBackend =
           erro.error?.error ||
           erro.error?.mensagem ||
+          '';
+
+        const mensagem =
+          mensagemBackend ||
           'Não foi possível excluir o produto.';
 
         this.toastr.error(mensagem, 'Erro');
