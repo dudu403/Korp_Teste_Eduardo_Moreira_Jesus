@@ -149,5 +149,14 @@ namespace FaturamentoService.Application
                 }).ToList()
             };
         }
+
+        public async Task<bool> PossuiNotaAbertaPorProdutoAsync(string codigoProduto)
+        {
+            return await _context.NotasFiscais
+                .Include(n => n.Itens)
+                .AnyAsync(n =>
+                    n.Status == StatusNotaFiscal.Aberta &&
+                    n.Itens.Any(i => i.CodigoProduto == codigoProduto));
+        }
     }
 }

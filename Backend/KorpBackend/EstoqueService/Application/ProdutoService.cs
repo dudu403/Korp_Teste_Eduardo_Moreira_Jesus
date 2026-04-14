@@ -1,4 +1,5 @@
-﻿using EstoqueService.Data;
+﻿using EstoqueService.Clients;
+using EstoqueService.Data;
 using EstoqueService.Domain.Entities;
 using EstoqueService.Dtos;
 using FluentValidation;
@@ -10,11 +11,16 @@ namespace EstoqueService.Application
     {
         private readonly EstoqueDbContext _context;
         private readonly IValidator<Produto> _validator;
+        private readonly FaturamentoClient _faturamentoClient;
 
-        public ProdutoService(EstoqueDbContext context, IValidator<Produto> validator)
+        public ProdutoService(
+            EstoqueDbContext context,
+            IValidator<Produto> validator,
+            FaturamentoClient faturamentoClient)
         {
             _context = context;
             _validator = validator;
+            _faturamentoClient = faturamentoClient;
         }
 
         public async Task<ProdutoResponseDto> CriarAsync(CriarProdutoRequestDto request)
@@ -108,6 +114,11 @@ namespace EstoqueService.Application
             if (produto == null)
                 throw new ArgumentException("Produto não encontrado.");
 
+            var possuiNotaAberta = await _faturamentoClient.PossuiNotaAbertaPorProdutoAsync(produto.Codigo);
+
+            if (possuiNotaAberta)
+                throw new ArgumentException("Não é possível excluir o produto, pois ele está vinculado a uma nota fiscal aberta.");
+
             _context.Produtos.Remove(produto);
             await _context.SaveChangesAsync();
         }
@@ -135,9 +146,9 @@ namespace EstoqueService.Application
                 throw new ArgumentException("A quantidade para baixa deve ser maior que zero.");
 
             var linhasAfetadas = await _context.Database.ExecuteSqlInterpolatedAsync($@"
-                                                            UPDATE Produtos
-                                                            SET Saldo = Saldo - {quantidade}
-                                                            WHERE Codigo = {codigo} AND Saldo >= {quantidade}");
+                UPDATE Produtos
+                SET Saldo = Saldo - {quantidade}
+                WHERE Codigo = {codigo} AND Saldo >= {quantidade}");
 
             if (linhasAfetadas == 0)
             {
