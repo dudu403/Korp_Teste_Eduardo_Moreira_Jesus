@@ -85,6 +85,22 @@ namespace EstoqueService.Application
             if (produto == null)
                 throw new ArgumentException("Produto não encontrado.");
 
+            var possuiNotaAberta = await _faturamentoClient.PossuiNotaAbertaPorProdutoAsync(produto.Codigo);
+
+            
+            if (possuiNotaAberta && !string.Equals(produto.Codigo, request.Codigo, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Não é possível alterar o código do produto, pois ele está vinculado a uma nota fiscal aberta.");
+
+            
+            if (possuiNotaAberta && request.Saldo < produto.Saldo)
+            {
+               
+                var quantidadeEmNotasAbertas = await _faturamentoClient.ObterQuantidadeEmNotasAbertasAsync(produto.Codigo);
+
+                if (request.Saldo < quantidadeEmNotasAbertas)
+                    throw new ArgumentException("Não é possível reduzir o saldo do produto abaixo da quantidade vinculada em notas fiscais abertas.");
+            }
+
             produto.Codigo = request.Codigo;
             produto.Descricao = request.Descricao;
             produto.Saldo = request.Saldo;
