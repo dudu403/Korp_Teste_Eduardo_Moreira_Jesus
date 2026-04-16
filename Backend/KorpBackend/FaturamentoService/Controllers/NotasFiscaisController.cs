@@ -57,5 +57,16 @@ namespace FaturamentoService.Controllers
                 possuiNotaAberta
             });
         }
+
+        [HttpGet("produto/{codigoProduto}/quantidade-em-notas-abertas")]
+        public async Task<ActionResult<object>> ObterQuantidadeEmNotasAbertas(string codigoProduto)
+        {
+            var quantidade = await _notaFiscalService.ObterQuantidadeEmNotasAbertasAsync(codigoProduto);
+
+            return Ok(new
+            {
+                quantidade
+            });
+        }
     }
 }

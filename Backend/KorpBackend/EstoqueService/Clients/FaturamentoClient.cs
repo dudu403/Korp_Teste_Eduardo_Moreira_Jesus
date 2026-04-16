@@ -25,5 +25,19 @@ namespace EstoqueService.Clients
 
             return resultado.PossuiNotaAberta;
         }
+
+        public async Task<int> ObterQuantidadeEmNotasAbertasAsync(string codigoProduto)
+        {
+            var response = await _httpClient.GetAsync($"api/notasfiscais/produto/{codigoProduto}/quantidade-em-notas-abertas");
+
+            response.EnsureSuccessStatusCode();
+
+            var resultado = await response.Content.ReadFromJsonAsync<QuantidadeEmNotasAbertasResponseDto>();
+
+            if (resultado == null)
+                throw new ArgumentException("Não foi possível interpretar a resposta do serviço de faturamento.");
+
+            return resultado.Quantidade;
+        }
     }
 }

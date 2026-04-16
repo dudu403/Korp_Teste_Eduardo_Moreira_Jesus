@@ -1,10 +1,10 @@
-﻿using FaturamentoService.Data;
+﻿using FaturamentoService.Clients;
+using FaturamentoService.Data;
 using FaturamentoService.Domain.Entities;
 using FaturamentoService.Domain.Enums;
 using FaturamentoService.Dtos;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using FaturamentoService.Clients;
 
 namespace FaturamentoService.Application
 {
@@ -117,7 +117,7 @@ namespace FaturamentoService.Application
             if (notaFiscal == null)
                 throw new ArgumentException("Nota fiscal não encontrada.");
 
-            if (notaFiscal.Status == Domain.Enums.StatusNotaFiscal.Fechada)
+            if (notaFiscal.Status == StatusNotaFiscal.Fechada)
                 throw new ArgumentException("A nota fiscal já está fechada.");
 
             foreach (var item in notaFiscal.Itens)
@@ -130,7 +130,7 @@ namespace FaturamentoService.Application
                 await _estoqueClient.BaixarEstoqueAsync(item.CodigoProduto, item.Quantidade);
             }
 
-            notaFiscal.Status = Domain.Enums.StatusNotaFiscal.Fechada;
+            notaFiscal.Status = StatusNotaFiscal.Fechada;
 
             await _context.SaveChangesAsync();
 
@@ -157,6 +157,15 @@ namespace FaturamentoService.Application
                 .AnyAsync(n =>
                     n.Status == StatusNotaFiscal.Aberta &&
                     n.Itens.Any(i => i.CodigoProduto == codigoProduto));
+        }
+
+        public async Task<int> ObterQuantidadeEmNotasAbertasAsync(string codigoProduto)
+        {
+            return await _context.NotasFiscais
+                .Where(n => n.Status == StatusNotaFiscal.Aberta)
+                .SelectMany(n => n.Itens)
+                .Where(i => i.CodigoProduto == codigoProduto)
+                .SumAsync(i => (int?)i.Quantidade) ?? 0;
         }
     }
 }
