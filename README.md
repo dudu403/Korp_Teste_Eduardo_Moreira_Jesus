@@ -111,14 +111,14 @@ Altere a connection string:
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=SEU_SERVIDOR;Database=EstoqueDb;Trusted_Connection=True;TrustServerCertificate=True"
+  "DefaultConnection": "Server=SEU_SERVIDOR;"
 }
 ```
 
 ### Exemplo:
 
 ```json
-Server=localhost;Database=EstoqueDb;Trusted_Connection=True;TrustServerCertificate=True
+Server=SEU_SERVIDOR;Database=EstoqueDb;Trusted_Connection=True;TrustServerCertificate=True
 ```
 
 ⚠️ Faça o mesmo para o banco `FaturamentoDb`
