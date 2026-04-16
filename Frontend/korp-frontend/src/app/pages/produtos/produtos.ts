@@ -153,9 +153,13 @@ export class ProdutosComponent implements OnInit {
         error: (erro: HttpErrorResponse) => {
           console.error('Erro ao atualizar produto', erro);
 
-          const mensagem =
+          const mensagemBackend =
             erro.error?.error ||
             erro.error?.mensagem ||
+            '';
+
+          const mensagem =
+            mensagemBackend ||
             'Não foi possível atualizar o produto.';
 
           this.toastr.error(mensagem, 'Erro');
@@ -174,9 +178,13 @@ export class ProdutosComponent implements OnInit {
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao cadastrar produto', erro);
 
-        const mensagem =
+        const mensagemBackend =
           erro.error?.error ||
           erro.error?.mensagem ||
+          '';
+
+        const mensagem =
+          mensagemBackend ||
           'Não foi possível cadastrar o produto.';
 
         this.toastr.error(mensagem, 'Erro');
