@@ -118,7 +118,7 @@ Altere a connection string:
 ### Exemplo:
 
 ```json
-Server=SEU_SERVIDOR;Database=EstoqueDb;Trusted_Connection=True;TrustServerCertificate=True
+Server=SEU_SERVIDOR;
 ```
 
 ⚠️ Faça o mesmo para o banco `FaturamentoDb`
