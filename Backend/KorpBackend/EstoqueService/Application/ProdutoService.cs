@@ -51,9 +51,37 @@ namespace EstoqueService.Application
             };
         }
 
-        public async Task<List<ProdutoResponseDto>> ListarTodosAsync()
+        public async Task<PagedResultDto<ProdutoResponseDto>> ListarPaginadoAsync(
+            int page,
+            int pageSize,
+            string? search = null)
         {
-            return await _context.Produtos
+            if (page < 1)
+                page = 1;
+
+            if (pageSize < 1)
+                pageSize = 10;
+
+            if (pageSize > 100)
+                pageSize = 100;
+
+            var query = _context.Produtos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+
+                query = query.Where(p =>
+                    p.Codigo.ToLower().Contains(search) ||
+                    p.Descricao.ToLower().Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(p => p.Codigo)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(p => new ProdutoResponseDto
                 {
                     Id = p.Id,
@@ -62,6 +90,15 @@ namespace EstoqueService.Application
                     Saldo = p.Saldo
                 })
                 .ToListAsync();
+
+            return new PagedResultDto<ProdutoResponseDto>
+            {
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
         }
 
         public async Task<ProdutoResponseDto?> SelecionarPorIdAsync(Guid id)
@@ -87,14 +124,11 @@ namespace EstoqueService.Application
 
             var possuiNotaAberta = await _faturamentoClient.PossuiNotaAbertaPorProdutoAsync(produto.Codigo);
 
-            
             if (possuiNotaAberta && !string.Equals(produto.Codigo, request.Codigo, StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("Não é possível alterar o código do produto, pois ele está vinculado a uma nota fiscal aberta.");
 
-            
             if (possuiNotaAberta && request.Saldo < produto.Saldo)
             {
-               
                 var quantidadeEmNotasAbertas = await _faturamentoClient.ObterQuantidadeEmNotasAbertasAsync(produto.Codigo);
 
                 if (request.Saldo < quantidadeEmNotasAbertas)

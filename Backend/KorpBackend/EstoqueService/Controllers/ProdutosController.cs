@@ -23,9 +23,12 @@ namespace EstoqueService.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProdutoResponseDto>>> ListarTodos()
+        public async Task<ActionResult<PagedResultDto<ProdutoResponseDto>>> ListarTodos(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null)
         {
-            var produtos = await _produtoService.ListarTodosAsync();
+            var produtos = await _produtoService.ListarPaginadoAsync(page, pageSize, search);
             return Ok(produtos);
         }
 
@@ -64,7 +67,7 @@ namespace EstoqueService.Controllers
             }
             catch (ArgumentException ex)
             {
-                return NotFound(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message });
             }
         }
 
