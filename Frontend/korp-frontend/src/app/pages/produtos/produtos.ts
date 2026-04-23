@@ -24,6 +24,11 @@ export class ProdutosComponent implements OnInit {
   editandoId = signal<string | null>(null);
   produtoParaExcluir = signal<Produto | null>(null);
 
+  paginaAtual = signal(1);
+  tamanhoPagina = signal(10);
+  totalRegistros = signal(0);
+  totalPaginas = signal(0);
+
   novoProduto = {
     codigo: '',
     descricao: '',
@@ -37,17 +42,21 @@ export class ProdutosComponent implements OnInit {
   carregarProdutos() {
     this.carregando.set(true);
 
-    this.produtosService.listarTodos().subscribe({
-      next: (dados) => {
-        this.produtos.set(dados);
-        this.carregando.set(false);
-      },
-      error: (erro: HttpErrorResponse) => {
-        console.error('Erro ao carregar produtos', erro);
-        this.toastr.error('Não foi possível carregar os produtos.', 'Erro');
-        this.carregando.set(false);
-      }
-    });
+    this.produtosService
+      .listarPaginado(this.paginaAtual(), this.tamanhoPagina(), this.busca())
+      .subscribe({
+        next: (dados) => {
+          this.produtos.set(dados.items);
+          this.totalRegistros.set(dados.totalCount);
+          this.totalPaginas.set(dados.totalPages);
+          this.carregando.set(false);
+        },
+        error: (erro: HttpErrorResponse) => {
+          console.error('Erro ao carregar produtos', erro);
+          this.toastr.error('Não foi possível carregar os produtos.', 'Erro');
+          this.carregando.set(false);
+        }
+      });
   }
 
   abrirModal() {
@@ -93,17 +102,8 @@ export class ProdutosComponent implements OnInit {
   atualizarBusca(event: Event) {
     const valor = (event.target as HTMLInputElement).value;
     this.busca.set(valor);
-  }
-
-  get produtosFiltrados() {
-    const termo = this.busca().trim().toLowerCase();
-
-    if (!termo) return this.produtos();
-
-    return this.produtos().filter((produto) =>
-      produto.codigo.toLowerCase().includes(termo) ||
-      produto.descricao.toLowerCase().includes(termo)
-    );
+    this.paginaAtual.set(1);
+    this.carregarProdutos();
   }
 
   salvarProduto() {
@@ -153,13 +153,9 @@ export class ProdutosComponent implements OnInit {
         error: (erro: HttpErrorResponse) => {
           console.error('Erro ao atualizar produto', erro);
 
-          const mensagemBackend =
+          const mensagem =
             erro.error?.error ||
             erro.error?.mensagem ||
-            '';
-
-          const mensagem =
-            mensagemBackend ||
             'Não foi possível atualizar o produto.';
 
           this.toastr.error(mensagem, 'Erro');
@@ -178,13 +174,9 @@ export class ProdutosComponent implements OnInit {
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao cadastrar produto', erro);
 
-        const mensagemBackend =
+        const mensagem =
           erro.error?.error ||
           erro.error?.mensagem ||
-          '';
-
-        const mensagem =
-          mensagemBackend ||
           'Não foi possível cadastrar o produto.';
 
         this.toastr.error(mensagem, 'Erro');
@@ -206,17 +198,27 @@ export class ProdutosComponent implements OnInit {
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao excluir produto', erro);
 
-        const mensagemBackend =
+        const mensagem =
           erro.error?.error ||
           erro.error?.mensagem ||
-          '';
-
-        const mensagem =
-          mensagemBackend ||
           'Não foi possível excluir o produto.';
 
         this.toastr.error(mensagem, 'Erro');
       }
     });
+  }
+
+  irParaPaginaAnterior() {
+    if (this.paginaAtual() > 1) {
+      this.paginaAtual.set(this.paginaAtual() - 1);
+      this.carregarProdutos();
+    }
+  }
+
+  irParaProximaPagina() {
+    if (this.paginaAtual() < this.totalPaginas()) {
+      this.paginaAtual.set(this.paginaAtual() + 1);
+      this.carregarProdutos();
+    }
   }
 }
